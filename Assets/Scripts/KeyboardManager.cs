@@ -24,6 +24,9 @@ public class KeyboardManager : MonoBehaviour {
     int totalKeys = 0;
 
     public GameObject playBack_stick;
+    private Vector3 playStick_initial_position;
+
+    private IEnumerator coroutine;
 
     private void Awake()
     {
@@ -35,7 +38,8 @@ public class KeyboardManager : MonoBehaviour {
     void Start()
     {
         mainSource = GameObject.Find("MainAudio").GetComponent<AudioSource>();
-
+        coroutine = PlayWholeRecord();
+        playStick_initial_position = playBack_stick.transform.localPosition;
     }
 
     public void AddKeyNote(GameObject Note)
@@ -61,7 +65,7 @@ public class KeyboardManager : MonoBehaviour {
         Debug.Log(index);
         playBack_stick.SetActive(true);
 
-        StartCoroutine(PlayWholeRecord());
+        StartCoroutine(coroutine);
     }
 
     IEnumerator PlayWholeRecord()
@@ -76,14 +80,52 @@ public class KeyboardManager : MonoBehaviour {
 
             Vector3 temp = playBack_stick.transform.localPosition;
             playBack_stick.transform.localPosition = new Vector3(temp.x + gap, temp.y, temp.z);
-
             //mainSource.Play();
         }
 
         playBack_stick.SetActive(false);
+        playBack_stick.transform.localPosition = playStick_initial_position;
+        coroutine = null;
+        coroutine = PlayWholeRecord();
         //mainSource.Play();
         //yield return new WaitForSeconds(seconds);
         //Debug.Log("")
+    }
+
+    public void stopClip()
+    {
+        StopCoroutine(coroutine);
+    }
+
+    public void eraseRecord()
+    {
+        //clearing the coroutine and playstick
+        playBack_stick.transform.localPosition = playStick_initial_position;
+        playBack_stick.SetActive(false);
+        coroutine = null;
+        coroutine = PlayWholeRecord();
+
+        //clearing the audio clip array
+        for(int i = 0; i < totalKeys; i++)
+        {
+            myClip[i] = null;
+        }
+
+        //re initializing the variables
+        index = 0;
+        totalKeys = 0;
+        x_position = -420;
+        inside_canvas = true;
+
+        //Destroying the key notes in record area
+        foreach(Transform child in recordCanvas)
+        {
+            GameObject obj = child.gameObject;
+            if(obj.tag == "KeyNote")
+            {
+                Destroy(obj);
+            }
+        }
     }
 
 }
