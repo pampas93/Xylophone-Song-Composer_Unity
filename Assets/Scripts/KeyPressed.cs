@@ -8,6 +8,8 @@ public class KeyPressed : MonoBehaviour {
 
     AudioSource mainSource;
 
+    public GameObject Note;
+
     private void Start()
     {
         mainSource = GameObject.Find("MainAudio").GetComponent<AudioSource>();
@@ -23,5 +25,9 @@ public class KeyPressed : MonoBehaviour {
         KeyboardManager.instance.myClip[i] = KeyNote;
 
         KeyboardManager.instance.index++;
+
+        KeyboardManager.instance.AddKeyNote(Note);
     }
+
+    
 }
